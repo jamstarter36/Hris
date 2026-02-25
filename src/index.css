@@ -1,0 +1,18 @@
+@import "tailwindcss";
+:root {
+  background: url('./images/MainBackground.png');
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+@theme {
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+.fontfamily{
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.fontclock{
+  font-family: 'JetBrains Mono', monospace;
+}

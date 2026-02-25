@@ -127,7 +127,6 @@ export const TimePunch = () => {
                     onClick={() => setClockOpen(false)}/>
                 <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md text-center overflow-hidden">
 
-                    {/* Header */}
                     <div className="flex items-center justify-between px-6 py-4 border-b-2 border-gray-100">
                     <div className="flex items-center gap-2 text-gray-700">
                         <MdAccessTime size={20} />
@@ -140,7 +139,6 @@ export const TimePunch = () => {
                     </button>
                     </div>
 
-                    {/* Animated inner content */}
                     <motion.div
                     className="relative bg-white rounded-xl w-full text-center overflow-hidden"
                     initial={{ opacity: 0, scale: 0.85, y: 40 }}
@@ -148,7 +146,6 @@ export const TimePunch = () => {
                     exit={{ opacity: 0, scale: 0.85, y: 40 }}
                     transition={{ type: 'spring', stiffness: 300, damping: 25 }}>
 
-                    {/* Clock display */}
                     <div className="bg-[#0f172a] mx-6 mt-6 mb-4 rounded-xl py-8 px-4">
                         <div className="flex items-center justify-center gap-2">
                         <div className="flex flex-col items-center">
@@ -171,10 +168,8 @@ export const TimePunch = () => {
                         </div>
                     </div>
 
-                    {/* Date */}
                     <p className="text-sm font-medium text-gray-500 mb-2 px-6">{dateStr}</p>
 
-                    {/* Time In display */}
                     {clockedIn && timeIn && (
                         <p className="text-xs text-center text-gray-400 px-6 pb-2">
                         Clocked in at{" "}
@@ -184,7 +179,6 @@ export const TimePunch = () => {
                         </p>
                     )}
                   
-                    {/* Time Out display */}
                     {!clockedIn && timeOut && (
                     <p className="text-xs text-center text-gray-400 px-6 pb-2">
                         Clocked out at {" "}
@@ -198,14 +192,12 @@ export const TimePunch = () => {
                     </p>
                     )}
 
-                    {/* Error message */}
                     {clockError && (
                         <p className="text-red-500 text-xs text-center px-6 pb-2 animate-pulse">
                         ⚠ {clockError}
                         </p>
                     )}
 
-                    {/* Border + Buttons */}
                     <div className="border-t-2 border-gray-100 pt-4 pb-4 flex gap-2 justify-center items-center px-5">
                         <button
                         onClick={handleClockIn}

@@ -115,8 +115,7 @@
               className='w-40 h-10 bg-blue-900 rounded-xl text-white hover:text-black 
                   transform transition-transform duration-700 
                   hover:scale-115 hover:bg-blue-300 fontfamily shadow-md
-                  disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:bg-blue-900 disabled:hover:text-white'
-            >
+                  disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:bg-blue-900 disabled:hover:text-white'>
               {loading ? "Signing in..." : "Login"}
             </button>
           </div>

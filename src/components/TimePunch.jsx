@@ -4,26 +4,35 @@
     import { clockIn, clockOut } from '../api/auth'
     import { MdAccessTime, MdClose } from 'react-icons/md'
     import api from '../api/auth'
+    import { OvertimeSection } from './OvertimeSection'
+
+    const showError = (setterFn, message) => {
+    setterFn(message)
+    setTimeout(() => setterFn(""), 5000)
+    }
 
     export const TimePunch = () => {
     const { user } = useAuth()
 
-    const [clockOpen, setClockOpen]       = useState(false)
-    const [time, setTime]                 = useState(new Date())
-    const [clockedIn, setClockedIn]       = useState(() => sessionStorage.getItem(`clockedIn_${user?.id}`) === "true")
-    const [timeRecordId, setTimeRecordId] = useState(() => sessionStorage.getItem(`timeRecordId_${user?.id}`) || null)
-    const [timeIn, setTimeIn]             = useState(() => sessionStorage.getItem(`timeIn_${user?.id}`) || null)
-    const [timeOut, setTimeOut]           = useState(() => sessionStorage.getItem(`timeOut_${user?.id}`) || null)
-    const [clockLoading, setClockLoading] = useState(false)
-    const [clockError, setClockError]     = useState("")
-    const [showOT, setShowOT]             = useState(false)
+    const [clockOpen, setClockOpen]           = useState(false)
+    const [time, setTime]                     = useState(new Date())
+    const [clockedIn, setClockedIn]           = useState(() => sessionStorage.getItem(`clockedIn_${user?.id}`) === "true")
+    const [timeRecordId, setTimeRecordId]     = useState(() => sessionStorage.getItem(`timeRecordId_${user?.id}`) || null)
+    const [timeIn, setTimeIn]                 = useState(() => sessionStorage.getItem(`timeIn_${user?.id}`) || null)
+    const [timeOut, setTimeOut]               = useState(() => sessionStorage.getItem(`timeOut_${user?.id}`) || null)
+    const [clockLoading, setClockLoading]     = useState(false)
+    const [clockError, setClockError]         = useState("")
+    const [showOT, setShowOT]                 = useState(false)
+    const [hideClockButtons, setHideClockButtons] = useState(false)
 
     useEffect(() => {
+        if (user?.role === 'Admin') return
         const timer = setInterval(() => setTime(new Date()), 1000)
         return () => clearInterval(timer)
     }, [])
 
     useEffect(() => {
+        if (user?.role === 'Admin') return
         const checkClockStatus = async () => {
         try {
             const response = await api.get('/timerecord/history')
@@ -39,16 +48,41 @@
             setClockedIn(true)
             setTimeIn(todayRecord.timeIn)
             setShowOT(false)
+            setHideClockButtons(false)
             } else if (todayRecord && todayRecord.timeIn && todayRecord.timeOut) {
             sessionStorage.setItem(`timeOut_${user.id}`, todayRecord.timeOut)
             setTimeOut(todayRecord.timeOut)
             setClockedIn(false)
+
+            const otResponse = await api.get('/timerecord/history-ot')
+            const otRecords = otResponse.data.records
+            const todayOT = otRecords.find(r =>
+                new Date(r.date).toDateString() === today
+            )
+
+            if (todayOT && todayOT.otTimeIn && !todayOT.otTimeOut) {
+        
+                setShowOT(true)
+                setHideClockButtons(true)
+            } else if (todayOT && todayOT.otTimeIn && todayOT.otTimeOut) {
+              
+                setShowOT(false)
+                setHideClockButtons(false)
+            } else if (todayOT && todayOT.otStatus !== null && !todayOT.otTimeIn) {
+          
             setShowOT(true)
+            setHideClockButtons(true)
+            } else {
+                
+                setShowOT(true)
+                setHideClockButtons(false)
+            }
             } else {
             setClockedIn(false)
             setTimeIn(null)
             setTimeOut(null)
             setShowOT(false)
+            setHideClockButtons(false)
             }
         } catch (err) {
             console.log('Could not check clock status:', err)
@@ -77,8 +111,9 @@
         setTimeIn(data.timeIn)
         setTimeOut(null)
         setShowOT(false)
+        setHideClockButtons(false)
         } catch (err) {
-        setClockError(err.response?.data?.error || "Clock in failed. Try again.")
+        showError(setClockError, err.response?.data?.error || "Clock in failed. Try again.")
         } finally {
         setClockLoading(false)
         }
@@ -97,12 +132,30 @@
         setTimeRecordId(null)
         setTimeIn(null)
         setTimeOut(data.timeOut)
-        setShowOT(true)
+
+        const otResponse = await api.get('/timerecord/history-ot')
+        const otRecords = otResponse.data.records
+        const today = new Date().toDateString()
+        const todayOT = otRecords.find(r =>
+            new Date(r.date).toDateString() === today
+        )
+        if (todayOT && todayOT.otTimeIn) {
+            setShowOT(false)
+            setHideClockButtons(true)
+        } else {
+            setShowOT(true)
+            setHideClockButtons(false)
+        }
         } catch (err) {
-        setClockError(err.response?.data?.error || "Clock out failed. Try again.")
+        showError(setClockError, err.response?.data?.error || "Clock out failed. Try again.")
         } finally {
         setClockLoading(false)
         }
+    }
+
+    const handleOTSubmit = ({ otHours, otReason }) => {
+    setShowOT(true)
+    setHideClockButtons(true)
     }
 
     if (user?.role === 'Admin') return null
@@ -115,6 +168,7 @@
             <MdAccessTime size={20} className="lg:hidden" />
             <MdAccessTime size={28} className="hidden lg:block" />
         </button>
+
         <AnimatePresence>
             {clockOpen && (
             <motion.div
@@ -124,6 +178,7 @@
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}>
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+
                 <div
                     className="absolute inset-0 bg-black/50"
                     onClick={() => setClockOpen(false)}/>
@@ -172,6 +227,7 @@
                     </div>
 
                     <p className="text-sm font-medium text-gray-500 mb-2 px-6">{dateStr}</p>
+
                     {clockedIn && timeIn && (
                         <p className="text-xs text-center text-gray-400 px-6 pb-2">
                         Clocked in at{" "}
@@ -199,68 +255,43 @@
                         ⚠ {clockError}
                         </p>
                     )}
-                    <div className="border-t-2 border-gray-100 pt-4 pb-4 flex gap-2 justify-center items-center px-5">
-                        <button
-                        onClick={handleClockIn}
-                        disabled={clockedIn || clockLoading}
-                        className={`rounded-lg shadow-md py-3 font-bold text-sm whitespace-nowrap transition-colors duration-200 w-36
-                            ${clockedIn || clockLoading
-                            ? 'bg-green-300 text-green-800 cursor-not-allowed'
-                            : 'bg-green-700 text-white hover:bg-green-500'
-                            }`}>
-                        {clockLoading && !clockedIn ? "..." : clockedIn ? "You're Clocked In" : "Clock In"}
-                        </button>
-                        <button
-                        onClick={handleClockOut}
-                        disabled={!clockedIn || clockLoading}
-                        className={`rounded-lg shadow-md py-3 font-bold text-sm whitespace-nowrap transition-colors duration-200 w-36
-                            ${!clockedIn || clockLoading
-                            ? 'bg-red-300 text-red-800 cursor-not-allowed'
-                            : 'bg-red-700 text-white hover:bg-red-500'
-                            }`}>
-                        {clockLoading && clockedIn ? "..." : "Clock Out"}
-                        </button>
-                    </div>
-                    <AnimatePresence>
-                    {showOT && (
-                        <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                        className="overflow-hidden">
-                        <div className="mx-5 mb-4 rounded-xl border-2 border-dashed border-blue-200 bg-blue-50 p-4">
-                            <div className="flex items-center gap-2 mb-4">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                            <span className="text-sm font-semibold text-blue-700 uppercase tracking-wide">
-                                File Overtime?
-                            </span>
-                            </div>
-                            <div className="mb-3 text-left">
-                            <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1 block">
-                                Number of Hours
-                            </label>
-                            <input type="number" min="0.5" max="12" step="0.5" placeholder="e.g. 2"
-                                className="w-full rounded-lg border-2 border-blue-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"/>
-                            </div>
-                            <div className="mb-4 text-left">
-                            <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1 block">
-                                Reason
-                            </label>
-                            <textarea
-                                rows={3}
-                                placeholder="Enter reason for overtime..."
-                                className="w-full rounded-lg border-2 border-blue-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition resize-none"/>
-                            </div>
-                            <button
-                            className="w-full rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 text-sm transition-colors duration-200 shadow-md">
-                            File OT
-                            </button>
 
+                    {/* Clock In / Clock Out buttons — hidden during OT */}
+                    {!hideClockButtons && (
+                        <div className="border-t-2 border-gray-100 pt-4 pb-4 flex gap-2 justify-center items-center px-5">
+                        <button
+                            onClick={handleClockIn}
+                            disabled={clockedIn || clockLoading}
+                            className={`rounded-lg shadow-md py-3 font-bold text-sm whitespace-nowrap transition-colors duration-200 w-36
+                            ${clockedIn || clockLoading
+                                ? 'bg-green-300 text-green-800 cursor-not-allowed'
+                                : 'bg-green-700 text-white hover:bg-green-500'
+                            }`}>
+                            {clockLoading && !clockedIn ? "..." : clockedIn ? "You're Clocked In" : "Clock In"}
+                        </button>
+                        <button
+                            onClick={handleClockOut}
+                            disabled={!clockedIn || clockLoading}
+                            className={`rounded-lg shadow-md py-3 font-bold text-sm whitespace-nowrap transition-colors duration-200 w-36
+                            ${!clockedIn || clockLoading
+                                ? 'bg-red-300 text-red-800 cursor-not-allowed'
+                                : 'bg-red-700 text-white hover:bg-red-500'
+                            }`}>
+                            {clockLoading && clockedIn ? "..." : "Clock Out"}
+                        </button>
                         </div>
-                        </motion.div>
                     )}
-                    </AnimatePresence>
+
+                    <OvertimeSection
+                        key={clockOpen ? `ot-${user?.id}` : null}
+                        show={showOT}
+                        onSubmit={handleOTSubmit}
+                        onDismiss={() => setShowOT(false)}
+                        onComplete={() => {
+                        setShowOT(false)
+                        setHideClockButtons(false)
+                        }}
+                        onOTStatus={(otActive) => setHideClockButtons(otActive)}/>
 
                     </motion.div>
                 </div>

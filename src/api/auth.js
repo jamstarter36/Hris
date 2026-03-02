@@ -60,3 +60,8 @@ export const clockOut = async (timeRecordId) => {
 };
 
 export default api;
+
+export const otClockIn = async () => {
+  const response = await attendanceApi.post("/overtime/clock-in")
+  return response.data
+}

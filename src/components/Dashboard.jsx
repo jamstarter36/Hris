@@ -88,7 +88,7 @@ export const Dashboard = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      // Don't re-render while OT modal is open — it would remount the modal
+    
       if (!showOTModalRef.current) {
         fetchHistory(true)
         if (isAdmin || isManager) fetchOTRequests()

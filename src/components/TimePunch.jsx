@@ -14,15 +14,15 @@
     export const TimePunch = () => {
     const { user } = useAuth()
 
-    const [clockOpen, setClockOpen]           = useState(false)
-    const [time, setTime]                     = useState(new Date())
-    const [clockedIn, setClockedIn]           = useState(() => sessionStorage.getItem(`clockedIn_${user?.id}`) === "true")
-    const [timeRecordId, setTimeRecordId]     = useState(() => sessionStorage.getItem(`timeRecordId_${user?.id}`) || null)
-    const [timeIn, setTimeIn]                 = useState(() => sessionStorage.getItem(`timeIn_${user?.id}`) || null)
-    const [timeOut, setTimeOut]               = useState(() => sessionStorage.getItem(`timeOut_${user?.id}`) || null)
-    const [clockLoading, setClockLoading]     = useState(false)
-    const [clockError, setClockError]         = useState("")
-    const [showOT, setShowOT]                 = useState(false)
+    const [clockOpen, setClockOpen] = useState(false)
+    const [time, setTime] = useState(new Date())
+    const [clockedIn, setClockedIn] = useState(() => sessionStorage.getItem(`clockedIn_${user?.id}`) === "true")
+    const [timeRecordId, setTimeRecordId] = useState(() => sessionStorage.getItem(`timeRecordId_${user?.id}`) || null)
+    const [timeIn, setTimeIn] = useState(() => sessionStorage.getItem(`timeIn_${user?.id}`) || null)
+    const [timeOut, setTimeOut] = useState(() => sessionStorage.getItem(`timeOut_${user?.id}`) || null)
+    const [clockLoading, setClockLoading] = useState(false)
+    const [clockError, setClockError] = useState("")
+    const [showOT, setShowOT] = useState(false)
     const [hideClockButtons, setHideClockButtons] = useState(false)
 
     useEffect(() => {

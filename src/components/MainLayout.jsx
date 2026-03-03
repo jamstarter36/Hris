@@ -18,19 +18,19 @@ import {
 } from 'react-icons/md'
 
 const NAV_ITEMS = [
-  { label: 'Dashboard',          icon: MdDashboard,     path: '/dashboard',       roles: ['Admin', 'Manager', 'User'] },
-  { label: 'Employee Management',icon: MdPeople,        path: '/employees',       roles: ['Admin', 'Manager'] },
+  { label: 'Dashboard', icon: MdDashboard, path: '/dashboard', roles: ['Admin', 'Manager', 'User'] },
+  { label: 'Employee Management',icon: MdPeople, path: '/employees', roles: ['Admin', 'Manager'] },
   { label: 'Attendance & Leave', icon: MdAccessTime,    path: '/attendance',      roles: ['Admin', 'Manager', 'User'] },
-  { label: 'Payroll',            icon: MdAttachMoney,   path: '/payroll',         roles: ['Admin', 'Manager', 'User'] },
+  { label: 'Payroll', icon: MdAttachMoney, path: '/payroll', roles: ['Admin', 'Manager', 'User'] },
   { label: 'Reports & Analytics',icon: MdBarChart,      path: '/reports',         roles: ['Admin', 'Manager'] },
-  { label: 'User Management',    icon: MdManageAccounts,path: '/user-management', roles: ['Admin'] },
-  { label: 'System Settings',    icon: MdSettings,      path: '/settings',        roles: ['Admin'] },
+  { label: 'User Management', icon: MdManageAccounts, path: '/user-management', roles: ['Admin'] },
+  { label: 'System Settings', icon: MdSettings, path: '/settings', roles: ['Admin'] },
 ]
 
 const ROLE_STYLES = {
-  Admin:   'bg-red-500/20 text-red-300 border border-red-500/30',
-  Manager: 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30',
-  User:    'bg-blue-500/20 text-blue-300 border border-blue-500/30',
+  Admin: 'bg-red-500/20 text-red-300 border border-red-500/30',
+  Manager:'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30',
+  User: 'bg-blue-500/20 text-blue-300 border border-blue-500/30',
 }
 
 export const MainLayout = () => {

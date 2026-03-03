@@ -122,7 +122,6 @@ export const OvertimeApproval = ({ onClose, canApprove }) => {
           exit={{ opacity: 0, scale: 0.85, y: 40 }}
           transition={{ type: 'spring', stiffness: 300, damping: 25 }}>
 
-          {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b-2 border-gray-100" onClick={() => setSelectedId(null)}>
             <div className="flex items-center gap-2 text-gray-700">
               <MdMoreTime size={20} className="text-orange-500" />
@@ -135,7 +134,6 @@ export const OvertimeApproval = ({ onClose, canApprove }) => {
             </button>
           </div>
 
-          {/* Table */}
           <div className="overflow-y-auto max-h-[60vh]">
 
             {loading && (
@@ -221,7 +219,7 @@ export const OvertimeApproval = ({ onClose, canApprove }) => {
             )}
           </div>
 
-          {/* Extension Panel */}
+          {/* Extension */}
           <motion.div
             initial={false}
             animate={{ height: selectedRecord ? 'auto' : 0, opacity: selectedRecord ? 1 : 0 }}

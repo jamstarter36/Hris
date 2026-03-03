@@ -40,12 +40,12 @@ export const Dashboard = () => {
   const isAdmin   = user?.role === 'Admin'
   const isManager = user?.role === 'Manager'
 
-  const [data, setData]                 = useState(null)
-  const [loading, setLoading]           = useState(true)
-  const [error, setError]               = useState('')
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [systemOnline, setSystemOnline] = useState(true)
-  const [otData, setOtData]             = useState(null)
-  const [showOTModal, setShowOTModal]   = useState(false)
+  const [otData, setOtData] = useState(null)
+  const [showOTModal, setShowOTModal] = useState(false)
 
   const showOTModalRef = useRef(showOTModal)
   useEffect(() => { showOTModalRef.current = showOTModal }, [showOTModal])

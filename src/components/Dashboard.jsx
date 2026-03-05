@@ -5,21 +5,11 @@ import { OvertimeApproval } from '../components/OvertimeApproval'
 import {
   MdAccessTime,
   MdCalendarToday,
-  MdCheckCircle,
   MdCancel,
-  MdSchedule,
   MdRefresh,
   MdPeople,
   MdMoreTime,
 } from 'react-icons/md'
-
-const STATUS_STYLES = {
-  'Present':  'bg-green-100 text-green-700 border border-green-200',
-  'Half Day': 'bg-yellow-100 text-yellow-700 border border-yellow-200',
-  'Late':     'bg-orange-100 text-orange-700 border border-orange-200',
-  'Absent':   'bg-red-100 text-red-700 border border-red-200',
-  'Pending':  'bg-gray-100 text-gray-600 border border-gray-200',
-}
 
 const formatTime = (isoString) => {
   if (!isoString) return '--:--'
@@ -35,12 +25,15 @@ const formatDate = (isoString) => {
   })
 }
 
+const toDateKey = (isoString) => isoString?.slice(0, 10) ?? ''
+
 export const Dashboard = () => {
   const { user } = useAuth()
-  const isAdmin   = user?.role === 'Admin'
+  const isAdmin = user?.role === 'Admin'
   const isManager = user?.role === 'Manager'
 
-  const [data, setData] = useState(null)
+  const [data, setData]  = useState(null)
+  const [otHistory, setOtHistory] = useState({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [systemOnline, setSystemOnline] = useState(true)
@@ -72,6 +65,22 @@ export const Dashboard = () => {
     }
   }
 
+  const fetchOTHistory = async () => {
+    if (isAdmin) return
+    try {
+      const response = await api.get('/timerecord/history-ot-logs')
+      const raw = response.data.records || []
+      const map = {}
+      raw.forEach(r => {
+        const key = toDateKey(r.date)
+        if (key) map[key] = r
+      })
+      setOtHistory(map)
+    } catch (err) {
+      console.log('Could not fetch OT history:', err)
+    }
+  }
+
   const fetchOTRequests = async () => {
     try {
       const response = await api.get('/overtime/requests')
@@ -83,17 +92,19 @@ export const Dashboard = () => {
 
   useEffect(() => {
     fetchHistory()
+    fetchOTHistory()
     if (isAdmin || isManager) fetchOTRequests()
   }, [])
 
   useEffect(() => {
     const interval = setInterval(() => {
-    
       if (!showOTModalRef.current) {
         fetchHistory(true)
+        fetchOTHistory()
         if (isAdmin || isManager) fetchOTRequests()
       }
-    }, 5000)
+    fetchOTRequests()
+    }, 2000)
     return () => clearInterval(interval)
   }, [])
 
@@ -125,7 +136,6 @@ export const Dashboard = () => {
       {data && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
-          {/* Total Records — always show */}
           <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
             <div className="flex items-center gap-3">
               <div className="bg-blue-100 p-2 rounded-lg">
@@ -138,7 +148,6 @@ export const Dashboard = () => {
             </div>
           </div>
 
-          {/* Employees — Admin only */}
           {isAdmin && (
             <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
               <div className="flex items-center gap-3">
@@ -236,67 +245,71 @@ export const Dashboard = () => {
                   <th className="px-5 py-3 text-left">Time Out</th>
                   {isAdmin && <th className="px-5 py-3 text-left">Schedule</th>}
                   <th className="px-5 py-3 text-left">Hours Worked</th>
-                  <th className="px-5 py-3 text-left">Status</th>
-                  <th className="px-5 py-3 text-left">Late</th>
-                  <th className="px-5 py-3 text-left">Undertime</th>
+                  {!isAdmin && <th className="px-5 py-3 text-left">OT In</th>}
+                  {!isAdmin && <th className="px-5 py-3 text-left">OT Out</th>}
+                  {!isAdmin && <th className="px-5 py-3 text-left">OT Hours</th>}
                   {isAdmin && <th className="px-5 py-3 text-left">Auto Clock Out</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {records.map((record, index) => (
-                  <tr key={index} className="hover:bg-gray-50 transition-colors duration-150">
-                    {isAdmin && (
-                      <td className="px-5 py-3 font-mono text-gray-500 text-xs">
-                        #{record.employeeId}
+                {records.map((record, index) => {
+                  const ot = !isAdmin ? (otHistory[toDateKey(record.date)] ?? null) : null
+                  return (
+                    <tr key={index} className="hover:bg-gray-50 transition-colors duration-150">
+                      {isAdmin && (
+                        <td className="px-5 py-3 font-mono text-gray-500 text-xs">
+                          #{record.employeeId}
+                        </td>
+                      )}
+                      <td className="px-5 py-3 font-medium text-gray-700">
+                        {formatDate(record.date)}
                       </td>
-                    )}
-                    <td className="px-5 py-3 font-medium text-gray-700">
-                      {formatDate(record.date)}
-                    </td>
-                    <td className="px-5 py-3 font-mono text-gray-600">
-                      {formatTime(record.timeIn)}
-                    </td>
-                    <td className="px-5 py-3 font-mono text-gray-600">
-                      {formatTime(record.timeOut)}
-                    </td>
-                    {isAdmin && (
-                      <td className="px-5 py-3 text-gray-600">
-                        {record.workScheduleName || '--'}
+                      <td className="px-5 py-3 font-mono text-gray-600">
+                        {formatTime(record.timeIn)}
                       </td>
-                    )}
-                    <td className="px-5 py-3 font-mono text-gray-600">
-                      {record.totalHoursWorked > 0
-                        ? `${record.totalHoursWorked.toFixed(2)} hrs`
-                        : '--'
-                      }
-                    </td>
-                    <td className="px-5 py-3">
-                      <span className={`text-xs font-semibold px-2 py-1 rounded-full ${STATUS_STYLES[record.attendanceStatus] || STATUS_STYLES['Pending']}`}>
-                        {record.attendanceStatus}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3">
-                      {record.isLate
-                        ? <span className="text-xs font-semibold text-orange-600">+{record.tardinessMinutes} mins</span>
-                        : <span className="text-xs text-green-500">On time</span>
-                      }
-                    </td>
-                    <td className="px-5 py-3">
-                      {record.isUndertime
-                        ? <span className="text-xs font-semibold text-red-500">{record.undertimeMinutes} mins</span>
-                        : <span className="text-xs text-green-500">None</span>
-                      }
-                    </td>
-                    {isAdmin && (
-                      <td className="px-5 py-3">
-                        {record.isAutoClockOut
-                          ? <span className="text-xs font-semibold text-orange-500">Auto</span>
-                          : <span className="text-xs text-gray-400">Manual</span>
+                      <td className="px-5 py-3 font-mono text-gray-600">
+                        {formatTime(record.timeOut)}
+                      </td>
+                      {isAdmin && (
+                        <td className="px-5 py-3 text-gray-600">
+                          {record.workScheduleName || '--'}
+                        </td>
+                      )}
+                      <td className="px-5 py-3 font-mono text-gray-600">
+                        {record.totalHoursWorked > 0
+                          ? `${record.totalHoursWorked.toFixed(2)} hrs`
+                          : '--'
                         }
                       </td>
-                    )}
-                  </tr>
-                ))}
+                      {!isAdmin && (
+                        <td className="px-5 py-3 font-mono text-gray-600">
+                          {formatTime(ot?.otTimeIn)}
+                        </td>
+                      )}
+                      {!isAdmin && (
+                        <td className="px-5 py-3 font-mono text-gray-600">
+                          {formatTime(ot?.otTimeOut)}
+                        </td>
+                      )}
+                      {!isAdmin && (
+                        <td className="px-5 py-3 font-mono text-gray-600">
+                          {ot?.actualOvertimeHours != null
+                            ? `${ot.actualOvertimeHours.toFixed(2)} hrs`
+                            : '--'
+                          }
+                        </td>
+                      )}
+                      {isAdmin && (
+                        <td className="px-5 py-3">
+                          {record.isAutoClockOut
+                            ? <span className="text-xs font-semibold text-orange-500">Auto</span>
+                            : <span className="text-xs text-gray-400">Manual</span>
+                          }
+                        </td>
+                      )}
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>

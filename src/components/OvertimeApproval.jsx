@@ -34,7 +34,9 @@ export const OvertimeApproval = ({ onClose, canApprove }) => {
   useEffect(() => {
     const fetchOTRequests = async () => {
       try {
-        const response = await api.get('/overtime/requests')
+        const isUser = user?.role === 'User'
+        const endpoint = isUser ? '/overtime/requests-user' : '/overtime/requests'
+        const response = await api.get(endpoint)
         const topEmployeeId = response.data.employeeId
         const raw = response.data.records || []
         const fetched = raw.map((r, i) => ({
@@ -43,12 +45,7 @@ export const OvertimeApproval = ({ onClose, canApprove }) => {
           otStatus: r.otStatus || r.status || 'Pending',
           _rowKey: r.overtimeRequestId != null ? String(r.overtimeRequestId) : (r.employeeId ?? topEmployeeId) + '-' + r.date + '-' + i,
         }))
-        // If User role, only show their own records
-        const isUser = user?.role === 'User'
-        const filtered = isUser
-          ? fetched.filter(r => r.employeeId === loggedInEmployeeId)
-          : fetched
-        setRecords(filtered)
+        setRecords(fetched)
       } catch (err) {
         setError('Failed to load OT requests.')
       } finally {
@@ -122,6 +119,7 @@ export const OvertimeApproval = ({ onClose, canApprove }) => {
           exit={{ opacity: 0, scale: 0.85, y: 40 }}
           transition={{ type: 'spring', stiffness: 300, damping: 25 }}>
 
+          {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b-2 border-gray-100" onClick={() => setSelectedId(null)}>
             <div className="flex items-center gap-2 text-gray-700">
               <MdMoreTime size={20} className="text-orange-500" />
@@ -134,6 +132,7 @@ export const OvertimeApproval = ({ onClose, canApprove }) => {
             </button>
           </div>
 
+          {/* Table */}
           <div className="overflow-y-auto max-h-[60vh]">
 
             {loading && (
@@ -219,7 +218,7 @@ export const OvertimeApproval = ({ onClose, canApprove }) => {
             )}
           </div>
 
-          {/* Extension */}
+          {/* Extension Panel */}
           <motion.div
             initial={false}
             animate={{ height: selectedRecord ? 'auto' : 0, opacity: selectedRecord ? 1 : 0 }}

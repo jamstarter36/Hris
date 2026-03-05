@@ -7,8 +7,6 @@ import {
   MdCancel,
 } from 'react-icons/md'
 
-const STORAGE_KEY = (userId) => 'notif_seen_count_' + userId
-
 export const NotificationSection = () => {
   const { user } = useAuth()
   const [notifOpen, setNotifOpen] = useState(false)
@@ -22,15 +20,23 @@ export const NotificationSection = () => {
       const response = await api.get('/timerecord/history-ot')
       const records = response.data.records || []
 
+     
       const filtered = records.filter(r =>
         ['Approved', 'approved', 'Rejected', 'rejected'].includes(r.otStatus)
       )
       setNotifications(filtered)
 
-      const seenCount = parseInt(sessionStorage.getItem(STORAGE_KEY(user.id)) || '0', 10)
-      setHasUnread(filtered.length > seenCount)
+      setHasUnread(filtered.some(r => r.isNew === true))
     } catch (err) {
       console.log('Could not fetch notifications:', err)
+    }
+  }
+
+  const markAsSeen = async () => {
+    try {
+      await api.post('/timerecord/mark-notifications-seen')
+    } catch (err) {
+      console.log('Could not mark notifications as seen:', err)
     }
   }
 
@@ -50,14 +56,15 @@ export const NotificationSection = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const handleBellClick = () => {
+  const handleBellClick = async () => {
     const next = !notifOpen
     setNotifOpen(next)
-    if (next) {
-      sessionStorage.setItem(STORAGE_KEY(user.id), String(notifications.length))
+    if (next && hasUnread) {
       setHasUnread(false)
+      await markAsSeen()
     }
   }
+
   const formatDate = (iso) => new Date(iso).toLocaleDateString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric'
   })
@@ -92,7 +99,9 @@ export const NotificationSection = () => {
               {notifications.map((n, i) => {
                 const isApproved = ['Approved', 'approved'].includes(n.otStatus)
                 return (
-                  <div key={i} className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
+                  <div
+                    key={i}
+                    className={'flex items-start gap-3 px-4 py-3 transition-colors ' + (n.isNew ? 'bg-blue-50 hover:bg-blue-100' : 'hover:bg-gray-50')}>
                     <div className="mt-0.5 shrink-0">
                       {isApproved
                         ? <MdCheckCircle size={18} className="text-green-500" />
@@ -100,9 +109,14 @@ export const NotificationSection = () => {
                       }
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-gray-700">
-                        OT Request {isApproved ? 'Approved' : 'Rejected'}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs font-semibold text-gray-700">
+                          OT Request {isApproved ? 'Approved' : 'Rejected'}
+                        </p>
+                        {n.isNew && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-blue-500 text-white animate-pulse">NEW</span>
+                        )}
+                      </div>
                       <p className="text-xs text-gray-500 mt-0.5">
                         {formatDate(n.date)} · {n.requestedHours} hrs requested
                       </p>

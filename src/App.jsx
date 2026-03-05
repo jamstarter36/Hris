@@ -5,12 +5,12 @@ import ProtectedRoute from './components/ProtectedRoute'
 import { LoginPage } from './components/LoginPage'
 import { MainLayout } from './components/MainLayout'
 import { Dashboard } from './components/Dashboard'
-import { Employees } from './Employees'
 import { Attendance } from './Attendance'
 import { Payroll } from './Payroll'
 import { Reports } from './Reports'
 import { UserManagement } from './UserManagement'
 import { SystemSettings } from './SystemSettings'
+import { EmployeeManagement } from './components/EmployeeManagement'
 
 const Unauthorized = () => <div className="flex items-center justify-center h-full"><h2 className="text-2xl font-bold text-red-500">🚫 Access Denied</h2></div>
 
@@ -28,7 +28,7 @@ function App() {
             />
           }>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/employees" element={<ProtectedRoute allowedRoles={['Admin', 'Manager']} element={<Employees />} />} />
+          <Route path="/employees" element={<ProtectedRoute allowedRoles={['Admin']} element={<EmployeeManagement/>} />} />
           <Route path="/reports" element={<ProtectedRoute allowedRoles={['Admin', 'Manager']} element={<Reports />} />} />
           <Route path="/attendance" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'User']} element={<Attendance />} />} />
           <Route path="/payroll" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'User']} element={<Payroll />} />} />

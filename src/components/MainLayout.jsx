@@ -19,7 +19,7 @@ import {
 
 const NAV_ITEMS = [
   { label: 'Dashboard', icon: MdDashboard, path: '/dashboard', roles: ['Admin', 'Manager', 'User'] },
-  { label: 'Employee Management',icon: MdPeople, path: '/employees', roles: ['Admin', 'Manager'] },
+  { label: 'Employee Management',icon: MdPeople, path: '/employees', roles: ['Admin'] },
   { label: 'Attendance & Leave', icon: MdAccessTime,    path: '/attendance',      roles: ['Admin', 'Manager', 'User'] },
   { label: 'Payroll', icon: MdAttachMoney, path: '/payroll', roles: ['Admin', 'Manager', 'User'] },
   { label: 'Reports & Analytics',icon: MdBarChart,      path: '/reports',         roles: ['Admin', 'Manager'] },

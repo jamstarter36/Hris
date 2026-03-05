@@ -1,4 +1,4 @@
-    import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
     import { useState, useEffect } from 'react'
     import { useAuth } from '../context/AuthStorage'
     import { clockIn, clockOut } from '../api/auth'
@@ -54,7 +54,7 @@
             setTimeOut(todayRecord.timeOut)
             setClockedIn(false)
 
-            const otResponse = await api.get('/timerecord/history-ot')
+            const otResponse = await api.get('/timerecord/history-ot-logs')
             const otRecords = otResponse.data.records
             const todayOT = otRecords.find(r =>
                 new Date(r.date).toDateString() === today
@@ -133,7 +133,7 @@
         setTimeIn(null)
         setTimeOut(data.timeOut)
 
-        const otResponse = await api.get('/timerecord/history-ot')
+        const otResponse = await api.get('/timerecord/history-ot-logs')
         const otRecords = otResponse.data.records
         const today = new Date().toDateString()
         const todayOT = otRecords.find(r =>

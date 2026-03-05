@@ -22,7 +22,7 @@ export const OvertimeSection = ({ show, onSubmit, onDismiss, onFiled, onComplete
 
   const checkOTStatus = async () => {
     try {
-      const response = await api.get('/timerecord/history-ot')
+      const response = await api.get('/timerecord/history-ot-logs')
       const records = response.data.records
       const today = new Date().toDateString()
       const todayOT = records.find(r =>

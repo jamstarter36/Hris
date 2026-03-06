@@ -206,7 +206,6 @@ export const OvertimeApproval = ({ onClose, canApprove }) => {
             )}
           </div>
 
-          {/* Footer */}
           <div className="px-6 py-3 border-t border-gray-100 flex justify-between items-center" onClick={() => setSelectedId(null)}>
             <span className="text-xs text-gray-400">
               {records.length} request{records.length !== 1 ? 's' : ''} found

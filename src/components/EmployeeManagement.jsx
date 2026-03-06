@@ -53,8 +53,7 @@ function Tab0() {
           <button
             type="button"
             onClick={() => setShow(!show)}
-            className="absolute right-3 inset-y-0 text-gray-400 hover:text-gray-600 text-xs font-semibold transition-colors"
-          >
+            className="absolute right-3 inset-y-0 text-gray-400 hover:text-gray-600 text-xs font-semibold transition-colors">
             {show ? "HIDE" : "SHOW"}
           </button>
         </div>
@@ -203,16 +202,15 @@ export const EmployeeManagement = () => {
         .tab-scroll::-webkit-scrollbar { height: 0; }
       `}</style>
 
-      {/* Page header */}
       <div className="mb-5">
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">Employee Management</p>
         <h1 className="text-xl font-bold text-gray-800">New Employee Record</h1>
       </div>
 
-      {/* Card */}
+
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
 
-        {/* Tab bar */}
+      
         <div className="tab-scroll flex overflow-x-auto bg-gray-50">
           {tabs.map((tab) => (
             <button
@@ -222,8 +220,7 @@ export const EmployeeManagement = () => {
                 ${active === tab.id
                   ? "text-blue-600 bg-white"
                   : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-                }`}
-            >
+                }`}>
               <span className="block truncate">{tab.label}</span>
             </button>
           ))}
@@ -234,7 +231,6 @@ export const EmployeeManagement = () => {
           <div className="flex items-center">
             {tabs.map((tab, i) => (
               <div key={tab.id} className="flex items-center flex-1">
-                {/* Step */}
                 <div className="flex flex-col items-center gap-1.5">
                   <button
                     onClick={() => setActive(tab.id)}
@@ -259,7 +255,6 @@ export const EmployeeManagement = () => {
                     {tab.label}
                   </span>
                 </div>
-                {/* Connector */}
                 {i < tabs.length - 1 && (
                   <div className="flex-1 mx-1.5 mb-4 sm:mb-5 h-0.5 rounded-full overflow-hidden bg-gray-100">
                     <div className={`h-full rounded-full transition-all duration-500 ${tab.id < active ? "w-full bg-blue-500" : "w-0"}`} />
@@ -269,19 +264,14 @@ export const EmployeeManagement = () => {
             ))}
           </div>
         </div>
-
-        {/* Content */}
         <div className="p-5 lg:p-6 tab-panel" key={active}>
           <ActiveTab />
         </div>
-
-        {/* Footer */}
         <div className="px-5 lg:px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-between items-center">
           <button
             onClick={() => setActive((p) => Math.max(0, p - 1))}
             disabled={active === 0}
-            className="px-4 py-2 rounded-lg text-sm font-semibold text-gray-600 border border-gray-200 hover:border-gray-300 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-          >
+            className="px-4 py-2 rounded-lg text-sm font-semibold text-gray-600 border border-gray-200 hover:border-gray-300 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
             ← Back
           </button>
 
@@ -292,8 +282,7 @@ export const EmployeeManagement = () => {
           {active < tabs.length - 1 ? (
             <button
               onClick={() => setActive((p) => Math.min(tabs.length - 1, p + 1))}
-              className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-sm"
-            >
+              className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-sm">
               Next →
             </button>
           ) : (
